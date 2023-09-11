@@ -425,6 +425,18 @@ class Deviate(TrialApplyFunction):
         dydt = np.append(dydt, dydt[-1])
         return dydt
 
+class NormalizeWithInitial(TrialApplyFunction):
+
+    def __init__(self):
+        super().__init__()
+
+    def __str__(self):
+        return f"normalized"
+
+    def __call__(self, t, y):
+        y = y/y.iloc[0]
+        return y
+
 class SavgolSmoother(TrialApplyFunction):
 
     def __init__(self, window_length, polyorder, **kwargs):
