@@ -6,7 +6,7 @@ i=0
 colors = plt.cm.viridis(np.linspace(0, 1, 8))
 def plot_trial(name, ax):
     global i
-    f = TgaFile(f"../data/{name}.txt")
+    f = TgaFile(f"data/{name}.txt")
     trial = Trial(f)
 
 
@@ -15,7 +15,7 @@ def plot_trial(name, ax):
 
 def plot_deviation(name, segment, primary_ax, secondary_ax, selector):
 
-    f = TgaFile(f"../data/{name}.txt")
+    f = TgaFile(f"data/{name}.txt")
     trial = Trial(f)
 
     trial.apply(selector, SavgolSmoother(101, 1), new_name=f"{selector}_s")

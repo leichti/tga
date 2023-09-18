@@ -1,2 +1,4 @@
 /venv_windows/
 /examples/data/
+/tests/.pytest_cache/
+/tga/dep/
