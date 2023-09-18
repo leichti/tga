@@ -1,8 +1,10 @@
 import re
+import time
+import traceback
 from datetime import datetime
 from itertools import islice
 from pathlib import Path
-
+import dask.dataframe as dd
 import pandas as pd
 
 
@@ -46,6 +48,12 @@ class TGAParser:
         r"# Weight: (?P<weight>\d+) mg$"
     )
 
+    LOOKUP = {"Temperature(°C)": {"new": "T", "dtype":"float32"}, "TEMP_NOM_SAMPLE(K)":{"new":"target_T", "dtype":"float32"}, "Delta m(mg)": {"new": "dm", "dtype":"float32"},
+              "Time(s)": {"new": "t", "dtype":"float32"}, "Wasser(ml/min)": {"new": "h2o", "dtype":"float32"},
+              "Gas 1(sccm/min)": {"new": "gas1", "dtype":"float32"}, "Gas 2(sccm/min)": {"new": "gas2", "dtype":"float32"},
+              "Purge(sccm/min)": {"new": "purge", "dtype":"float32"}, "TEMP_FURNACE(K)": {"new": "T_FURNACE", "dtype":"float32"}}
+
+
     @classmethod
     def from_file(cls, file_path):
         path = Path(file_path)
@@ -58,7 +66,7 @@ class TGAParser:
 
     @staticmethod
     def _read_file_header(path):
-        with path.open() as file:
+        with path.open(encoding='cp1252') as file:
             return ''.join(line for line in file.readlines()[:4])
 
     @classmethod
@@ -74,14 +82,18 @@ class TGAParser:
         if len(data) == 0:
             raise ValueError("No experimental data found.")
 
-        return TGA_Experiment(name, measurement_date, weight, data)
+        return TGAExperiment(name, measurement_date, weight, data)
 
     @classmethod
     def _read_file_content(cls, path):
-        return pd.read_csv(path, delimiter=",", skiprows=4, encoding="ISO-8859-1")
+
+        keys = list(TGAParser.LOOKUP.keys())
+        dtypes = {key: TGAParser.LOOKUP[key]['dtype'] for key in keys}
+
+        return pd.read_csv(path, delimiter=",", skiprows=4, encoding="ISO-8859-1", usecols=TGAParser.LOOKUP.keys(), dtype=dtypes)
 
 
-class TGA_Experiment:
+class TGAExperiment:
 
     GERMAN_TO_ENGLISH_DAYS = {
         'Mo': 'Mon',
@@ -112,10 +124,14 @@ class TGA_Experiment:
 
 # For testing
 if __name__ == "__main__":
-    path = "../examples/2023_waelz_reduction/data/1041_V1.txt"
+    path = "../tests/test_data/1041_V1.txt"
     try:
+        start = time.time_ns()
         tga_experiment = TGAParser.from_file(path)
-        print(tga_experiment.data)
-    except Exception as e:
-        print(e)
 
+        # @todo implement this feature
+        tga_experiment.search_gas_segments(["gas_col1", "gas_col2", "gas_col3"])
+        tga_experiment.search_temperature_segments(["T"])
+
+    except Exception as e:
+        traceback.print_exc()

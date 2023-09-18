@@ -1,7 +1,7 @@
 from unittest.mock import patch
 
 import pytest
-from tga.file_handling import TGA_Experiment, TGAParser
+from tga.file_handling import TGAExperiment, TGAParser
 
 
 def test_valid_content():
@@ -14,7 +14,7 @@ def test_valid_content():
 
     with patch('tga.file_handling.TGAParser._read_file_header', return_value=content):
         experiment = TGAParser.from_file("test_data/1041_V1.txt")
-        assert isinstance(experiment, TGA_Experiment)
+        assert isinstance(experiment, TGAExperiment)
         assert experiment.name == "V1"
 
         from datetime import datetime
