@@ -6,7 +6,7 @@ trial = Trial(test)
 
 trial.apply("h2o", SavgolSmoother(101, 1), new_name="h2o_s")
 
-oxidation = trial.segment_from_gas("h2o_s", segment_idx=0)
+oxidation = trial.search_segments_by_gasflow("h2o_s", segment_idx=0)
 
 oxidation.apply("m", SavgolSmoother(3001, 1), new_name="m_s")
 oxidation.apply("m_s", SavgolSmoother(3001, 3), new_name="m_s2")

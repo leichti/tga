@@ -20,7 +20,7 @@ def plot_deviation(name, segment, primary_ax, secondary_ax, selector):
 
     trial.apply(selector, SavgolSmoother(101, 1), new_name=f"{selector}_s")
 
-    segment = trial.segment_from_gas(f"{selector}_s", segment_idx=segment)
+    segment = trial.search_segments_by_gasflow(f"{selector}_s", segment_idx=segment)
 
     # smoothing
     segment.apply("m", SavgolSmoother(2001, 4), new_name="m_s")
